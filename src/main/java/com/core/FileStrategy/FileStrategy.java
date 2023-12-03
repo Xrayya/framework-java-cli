@@ -1,4 +1,4 @@
-package com.core.Accessor;
+package com.core.FileStrategy;
 
 import java.util.List;
 

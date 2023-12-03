@@ -1,32 +1,38 @@
 package com.core.Service;
 
-import java.util.HashMap;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import com.core.Accessor.FileAccessor;
-import com.core.Accessor.FileStrategy;
+import com.core.FileStrategy.FileStrategy;
 import com.core.Model.Model;
 
 /**
  * Service
  */
 public class Service {
-    protected Map<Class<? extends Model>, List<? extends Model>> models = new HashMap<>();
-    private FileStrategy<? extends Model> fileStrategy;
+    public <T extends Model> List<T> importData(Class<T> model, FileStrategy<T> fileStrategy) {
+        try {
+            List<T> list = new ArrayList<>();
+            list.addAll(new FileAccessor<>(fileStrategy,
+                    ((T) model.getConstructor((Class<?>[]) null).newInstance()).getFileName()).readData());
+            return list;
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
 
-    public Service() {
+        return new ArrayList<>();
     }
 
-    public Service(FileStrategy<? extends Model> fileStrategy) {
-        this.fileStrategy = fileStrategy;
-    }
-
-    public void setFileStrategy(FileStrategy<? extends Model> fileStrategy) {
-        this.fileStrategy = fileStrategy;
-    }
-
-    public <T extends Model> void addModel(T key) {
-        models.put(key.getClass(), new FileAccessor<>(fileStrategy, key.getFileName()).getAllData());
+    public <T extends Model> void syncData(Class<T> model, List<T> models, FileStrategy<T> fileStrategy) {
+        try {
+            new FileAccessor<>(fileStrategy,
+                    ((T) model.getConstructor((Class<?>[]) null).newInstance()).getFileName()).writeData(models);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
     }
 }
